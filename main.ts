@@ -1,6 +1,7 @@
 
 
-// 選択されたノードの情報を取得する。
+// 選択されたノードのリンク先を取得する。
+// 	選択されたノードのリンク先を全て取得すればバックリンクは取得しなくても成立する。
 // 取得したファイルノードのリンク先を取得する。
 // 取得したノードの既にあるノードリンクを取得する。
 
@@ -30,13 +31,20 @@ export default class MyPlugin extends Plugin {
 				
 				// @ts-ignore
 				const selected_file_nodes = Array.from(selected_data.nodes).filter((value) => value.type === "file");
-
-				console.log(all_data);
-				console.log(selected_data);
-				console.log(selected_file_nodes)
-				new Notice("選択されたファイルノードは"+selected_file_nodes.length+"個です。");
-
 				if(selected_file_nodes.length <= 0) return;
+
+				const all_file_links = this.app.metadataCache.resolvedLinks;
+				console.log(all_data);
+				console.log(all_file_links);
+				for(const node of selected_file_nodes)
+				{
+					// @ts-ignore
+					const file_path:string = node.file
+					const fwd_links = (Object.keys(all_file_links[file_path]) as Array<string>);
+					console.log(fwd_links);
+					new Notice(file_path);
+				}
+				new Notice("選択されたファイルノードは"+selected_file_nodes.length+"個です。");
 			}
 			else {
 				new Notice('False');
