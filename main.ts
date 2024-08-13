@@ -1,9 +1,6 @@
 
 
-// 選択されたノードのリンク先を取得する。
-// 	選択されたノードのリンク先を全て取得すればバックリンクは取得しなくても成立する。
-// 取得したファイルノードのリンク先を取得する。
-// 取得したノードの既にあるノードリンクを取得する。
+// 選択ノードに対してファイルリンクに基づいてエッジを上書き更新する。
 
 // 上書きと足し合わせの機能を実装する。
 
@@ -17,6 +14,9 @@ import {
 	PluginSettingTab, 
 	Setting,
 } from 'obsidian';
+
+import { CanvasEdgeData } from "obsidian/canvas";
+
 
 export default class MyPlugin extends Plugin {
 	async onload() {
@@ -35,15 +35,40 @@ export default class MyPlugin extends Plugin {
 
 				const all_file_links = this.app.metadataCache.resolvedLinks;
 				console.log(all_data);
+				console.log(selected_file_nodes);
 				console.log(all_file_links);
+
+				const selected_nodes_file_path:string[] = []
 				for(const node of selected_file_nodes)
 				{
 					// @ts-ignore
-					const file_path:string = node.file
-					const fwd_links = (Object.keys(all_file_links[file_path]) as Array<string>);
-					console.log(fwd_links);
-					new Notice(file_path);
+					selected_nodes_file_path.push(node.file);
 				}
+
+				const edges_data_to_update: CanvasEdgeData[] = [];
+				for(const node of selected_file_nodes)
+				{
+					// @ts-ignore
+					const file_path:string = node.file;
+					if(file_path in all_file_links == false)continue;
+					const fwd_links = (Object.keys(all_file_links[file_path]) as Array<string>);
+					for(const to_node of selected_file_nodes)
+					{
+						// @ts-ignore
+						if(fwd_links.includes(to_node.file))
+						{
+							const new_edge = this.createEdge(node, to_node);
+							edges_data_to_update.push(new_edge);
+						}
+					}
+				}
+
+				all_data.edges = [
+					...edges_data_to_update
+				];
+
+				canvas.setData(all_data);
+				canvas.requestSave();
 				new Notice("選択されたファイルノードは"+selected_file_nodes.length+"個です。");
 			}
 			else {
@@ -59,4 +84,24 @@ export default class MyPlugin extends Plugin {
 	}
 
 	is_active_leaf_canvas = () =>  this.app.workspace.activeLeaf?.view.getViewType() === "canvas"
+
+	createEdge(node1: any, node2: any) {
+		const random = (e: number) => {
+			let t = [];
+			for (let n = 0; n < e; n++) {
+				t.push((16 * Math.random() | 0).toString(16));
+			}
+			return t.join("");
+		};
+
+		const edgeData: CanvasEdgeData = {
+			id: random(16),
+			fromNode: node1.id,
+			fromSide: 'right',
+			toNode: node2.id,
+			toSide: 'left',
+		};
+
+		return edgeData;
+	}
 }
