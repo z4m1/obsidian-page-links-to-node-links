@@ -1,6 +1,6 @@
 
 # 目的
-Obsidian上に![Frieve Editor](https://github.com/Frieve-A/Frieve-Editor)を作成する計画で、グラフビューとキャンバスビューの統合した様なイメージを目指していたが
+Obsidian上に[Frieve Editor](https://github.com/Frieve-A/Frieve-Editor)を作成する計画で、グラフビューとキャンバスビューの統合した様なイメージを目指していたが
 グラフビューを編集可能にするのはコーディングの難易度が高そうだったので、まずは小さなプロジェクトとしてページのリンク構造をキャンバスのノードリンクとして取得する手法を検討。
 
 # 使用する人が了承しておいて欲しい事
